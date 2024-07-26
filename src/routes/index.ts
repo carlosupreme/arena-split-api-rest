@@ -2,14 +2,13 @@ import {Router} from 'express';
 import {globSync} from 'fast-glob';
 import path from "node:path";
 
-export function registerRoutes(router: Router) {
+export function registerRouteFiles(router: Router) {
     const routes = globSync(path.resolve(__dirname, '*.route.*'));
-    console.log('routes', routes);
     routes.forEach(route => register(route, router));
 }
 
 function register(routePath: string, app: Router) {
     import(routePath).then(route => {
-        route.register(app);
+        route.register(app)
     });
 }

@@ -1,9 +1,9 @@
 import {Express} from 'express';
-import {FriendsPostController} from "../friends/controllers/FriendsPostController";
+import {CreateUserController} from "../friends/controllers/CreateUserController";
 import container from "../di";
 
 export const register = async (app: Express) => {
-    const friendsController: FriendsPostController = container.get('FriendsPostController');
+    const friendsController: CreateUserController = container.get('CreateUserController');
 
     app.post('/user', friendsController.run.bind(friendsController));
 };

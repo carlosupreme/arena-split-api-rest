@@ -1,27 +1,35 @@
 import container from './di';
-import {Server} from './server';
+import httpServer from './server';
 import {Command, CommandHandler, DomainEvent, DomainEventSubscriber, EventBus} from "arena-split-core";
 import CommandHandlers from "./shared/commads/CommandHandlers";
+import {Express} from "express";
 
 export class Application {
-    server?: Server;
+    readonly server: Express;
 
-    async start() {
-        const port = process.env.PORT || '3000';
-        this.server = new Server(port);
+    static async create(): Promise<Application> {
+        const app = new Application();
+        await app.arrange();
+        return app;
+    }
 
+    constructor() {
+        this.server = httpServer
+    }
+
+    async arrange(): Promise<void> {
         await this.configureEventBus();
         await this.configureCommandBus();
-
-        return this.server.listen();
     }
 
-    get httpServer() {
-        return this.server?.getHTTPServer();
-    }
-
-    async stop() {
-        return this.server?.stop();
+    async start(port?: string): Promise<void> {
+        port = port || process.env.PORT || '3000';
+        this.server.listen(port, () => {
+            console.log(
+                `\tArena split Backend is running at http://localhost:${port} in ${this.server.get('env')} mode`
+            );
+            console.log('\tPress CTRL-C to stop\n');
+        });
     }
 
     private async configureEventBus() {

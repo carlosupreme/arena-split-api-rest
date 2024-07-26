@@ -1,9 +1,21 @@
-POST http://localhost:3000/user
+### Success
+POST http://localhost:3000/api/user
 Content-Type: application/json
 
 {
-  "fullName": "John Doe",
+  "fullName": "john doe",
   "email": "carlos@gmail.com",
   "username": "carlos",
-  "id": "550e8400-e29b-41d4-a716-446655440000"
+  "id": "f6e08c84-e07e-4585-9805-faea78bbf080"
+}
+
+### Invalid full name
+POST http://localhost:3000/api/user
+Content-Type: application/json
+
+{
+  "fullName": "",
+  "email": "carlos@gmail.com",
+  "username": "carlos",
+  "id": "f6e08c84-e07e-4585-9805-faea78bbf080"
 }
