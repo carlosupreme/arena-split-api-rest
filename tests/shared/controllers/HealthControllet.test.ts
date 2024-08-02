@@ -6,7 +6,7 @@ import {Application} from "../../../src/app";
 describe("Health controller", () => {
 
     it('should return OK', async () => {
-        const app = await Application.create();
+        const app = await Application.initialize();
         const route = '/api/health';
         const status = httpStatus.OK;
         const expectedResponse = {status: 'Server running'};

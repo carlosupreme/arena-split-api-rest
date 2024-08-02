@@ -2,11 +2,11 @@ import {describe, expect, it} from "vitest";
 import {Application} from "../../../src/app";
 import httpStatus from "http-status";
 import request from "supertest";
-import {InvalidFullNameError, UserId} from "arena-split-core";
+import {InvalidEmailAddressError, InvalidFullNameError, InvalidUserNameError, UserId} from "arena-split-core";
 import PDBuilder from "problem-details-http";
 
 describe("CreateUserController", async () => {
-    const app = await Application.create();
+    const app = await Application.initialize();
     const route = '/api/user';
 
     it('should create a user successfully', async () => {
@@ -32,7 +32,7 @@ describe("CreateUserController", async () => {
     it('should not create a user because full name validation error', async () => {
         const user = {
             id: UserId.create().value,
-            fullName: "",
+            fullName: "a",
             email: "test@test.com",
             username: "username",
         }
@@ -45,5 +45,44 @@ describe("CreateUserController", async () => {
             .send(user);
 
         expect(response.status).toEqual(expectedResponse.status);
+        expect(response.body.detail).toContain(expectedResponse.detail);
+    })
+
+    it('should not create a user because username validation error', async () => {
+        const user = {
+            id: UserId.create().value,
+            fullName: "Full name",
+            email: "test@test.com",
+            username: "",
+        }
+
+        const expectedResponse = PDBuilder.fromError(new InvalidUserNameError(user.username)).build();
+
+        const response = await request(app.server)
+            .post(route)
+            .set('Accept', 'application/json')
+            .send(user);
+
+        expect(response.status).toEqual(expectedResponse.status);
+        expect(response.body.title).toEqual("Invalid User Name Error");
+    })
+
+    it('should not create a user because email validation error', async () => {
+        const user = {
+            id: UserId.create().value,
+            fullName: "Full name",
+            email: "test",
+            username: "username",
+        }
+
+        const expectedResponse = PDBuilder.fromError(new InvalidEmailAddressError(user.email)).build();
+
+        const response = await request(app.server)
+            .post(route)
+            .set('Accept', 'application/json')
+            .send(user);
+
+        expect(response.status).toEqual(expectedResponse.status);
+        expect(response.body).toEqual(expectedResponse);
     })
 })

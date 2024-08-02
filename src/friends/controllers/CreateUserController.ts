@@ -1,5 +1,11 @@
 import {Request, Response} from "express";
-import {CommandBus, CreateUserCommand, InvalidFullNameError} from "arena-split-core";
+import {
+    CommandBus,
+    CreateUserCommand,
+    InvalidEmailAddressError,
+    InvalidFullNameError,
+    InvalidUserNameError
+} from "arena-split-core";
 import {Controller} from "../../shared/Controller";
 import httpStatus from "http-status";
 import PDBuilder, {ProblemDetails} from "problem-details-http";
@@ -24,7 +30,7 @@ export class CreateUserController implements Controller {
         }
     }
 
-    private async createUser({body}: Request<CreateUserRequest>): Promise<ProblemDetails | void > {
+    private async createUser({body}: Request<CreateUserRequest>): Promise<ProblemDetails | void> {
         const createUserCommand = new CreateUserCommand({
             id: body.id,
             fullName: body.fullName,
@@ -35,9 +41,14 @@ export class CreateUserController implements Controller {
         try {
             await this.commandBus.dispatch(createUserCommand);
         } catch (error) {
-            if (error instanceof InvalidFullNameError) {
-                return PDBuilder.fromError(error).status(httpStatus.BAD_REQUEST).build();
+            if (error instanceof InvalidFullNameError ||
+                error instanceof InvalidEmailAddressError ||
+                error instanceof InvalidUserNameError
+            ) {
+                return PDBuilder.fromError(error).build();
             }
+
+            return PDBuilder.fromDetail("Error creating user").build();
         }
     }
 }

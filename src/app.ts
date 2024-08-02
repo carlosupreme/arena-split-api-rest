@@ -7,7 +7,7 @@ import {Express} from "express";
 export class Application {
     readonly server: Express;
 
-    static async create(): Promise<Application> {
+    static async initialize(): Promise<Application> {
         const app = new Application();
         await app.arrange();
         return app;

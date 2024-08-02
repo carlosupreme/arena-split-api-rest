@@ -5,7 +5,7 @@ let application: Application;
 
 beforeEach(async () => {
     console.log("Starting application")
-    application = await Application.create();
+    application = await Application.initialize();
 })
 
 export {application}

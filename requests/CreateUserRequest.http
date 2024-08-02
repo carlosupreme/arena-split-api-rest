@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "fullName": "john doe",
   "email": "carlos@gmail.com",
-  "username": "carlos",
+  "username": "carlos_123",
   "id": "f6e08c84-e07e-4585-9805-faea78bbf080"
 }
 
@@ -16,6 +16,18 @@ Content-Type: application/json
 {
   "fullName": "",
   "email": "carlos@gmail.com",
-  "username": "carlos",
+  "username": "carlos.supreme",
+  "id": "f6e08c84-e07e-4585-9805-faea78bbf080"
+}
+
+
+### Invalid user name
+POST http://localhost:3000/api/user
+Content-Type: application/json
+
+{
+  "fullName": "Carlos Sosa",
+  "email": "carlos@gmail.com",
+  "username": "..",
   "id": "f6e08c84-e07e-4585-9805-faea78bbf080"
 }
