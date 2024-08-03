@@ -2,7 +2,13 @@ import {describe, expect, it} from "vitest";
 import {Application} from "../../../src/app";
 import httpStatus from "http-status";
 import request from "supertest";
-import {InvalidEmailAddressError, InvalidFullNameError, InvalidUserNameError, UserId} from "arena-split-core";
+import {
+    InvalidEmailAddressError,
+    InvalidFullNameError,
+    InvalidUserNameError,
+    InvalidUUIDError,
+    UserId
+} from "arena-split-core";
 import PDBuilder from "problem-details-http";
 
 describe("CreateUserController", async () => {
@@ -28,6 +34,28 @@ describe("CreateUserController", async () => {
         expect(response.status).toEqual(status);
         expect(response.body).toEqual(expectedResponse);
     })
+
+    it('should not create a user because id validation error', async () => {
+        const user = {
+            id: "invalid-id",
+            fullName: "Full name",
+            email: "test@test.com",
+            username: "carlosupreme",
+        }
+
+        const expectedResponse = PDBuilder.fromError(new InvalidUUIDError(user.id)).build();
+
+        const response = await request(app.server)
+            .post(route)
+            .set('Accept', 'application/json')
+            .send(user);
+
+        expect(response.status).toEqual(expectedResponse.status);
+        expect(response.body.detail).toContain(user.id);
+
+        console.log(response.body)
+    })
+
 
     it('should not create a user because full name validation error', async () => {
         const user = {

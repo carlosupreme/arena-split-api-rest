@@ -4,7 +4,7 @@ import {
     CreateUserCommand,
     InvalidEmailAddressError,
     InvalidFullNameError,
-    InvalidUserNameError
+    InvalidUserNameError, InvalidUUIDError
 } from "arena-split-core";
 import {Controller} from "../../shared/Controller";
 import httpStatus from "http-status";
@@ -41,7 +41,8 @@ export class CreateUserController implements Controller {
         try {
             await this.commandBus.dispatch(createUserCommand);
         } catch (error) {
-            if (error instanceof InvalidFullNameError ||
+            if (error instanceof InvalidUUIDError ||
+                error instanceof InvalidFullNameError ||
                 error instanceof InvalidEmailAddressError ||
                 error instanceof InvalidUserNameError
             ) {
