@@ -10,9 +10,11 @@ import {
     UserId
 } from "arena-split-core";
 import PDBuilder from "problem-details-http";
+import {InMemoryUserRepository} from "../../../src/friends/repository/InMemoryUserRepository";
 
 describe("CreateUserController", async () => {
     const app = await Application.initialize();
+    const userRepository = app.container.get<InMemoryUserRepository>("UserRepository");
     const route = '/api/user';
 
     it('should create a user successfully', async () => {
@@ -33,6 +35,13 @@ describe("CreateUserController", async () => {
 
         expect(response.status).toEqual(status);
         expect(response.body).toEqual(expectedResponse);
+        expect(userRepository.users.length).toBe(1);
+        expect(userRepository.users[0].id.value).toEqual(user.id);
+        expect(userRepository.users[0].getFullName().value).toEqual(user.fullName);
+        expect(userRepository.users[0].getEmail().value).toEqual(user.email);
+        expect(userRepository.users[0].getUsername().value).toEqual(user.username);
+
+        console.log(userRepository.users);
     })
 
     it('should not create a user because id validation error', async () => {
@@ -53,9 +62,8 @@ describe("CreateUserController", async () => {
         expect(response.status).toEqual(expectedResponse.status);
         expect(response.body.detail).toContain(user.id);
 
-        console.log(response.body)
-    })
 
+    })
 
     it('should not create a user because full name validation error', async () => {
         const user = {

@@ -1,9 +1,9 @@
 import {ContainerBuilder} from "node-dependency-injection";
-import registerShared from "./shared";
-import registerFriends from "./friends";
+import registerSharedDependencies from "./shared";
+import registerFriendsDependencies from "./friends";
 
 const container = new ContainerBuilder(true, __dirname)
-registerShared(container)
-registerFriends(container)
+registerSharedDependencies(container)
+registerFriendsDependencies(container)
 
 export default container;

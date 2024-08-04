@@ -3,7 +3,7 @@ import {InMemoryUserRepository} from "../friends/repository/InMemoryUserReposito
 import {CreateUserCommandHandler, LogOnUserCreated} from "arena-split-core";
 import {CreateUserController} from "../friends/controllers/CreateUserController";
 
-export default function registerFriends(container: ContainerBuilder) {
+export default function registerFriendsDependencies(container: ContainerBuilder) {
     container.register('UserRepository', InMemoryUserRepository)
     container.register('CreateUserCommandHandler', CreateUserCommandHandler)
         .addArgument(new Reference('UserRepository'))

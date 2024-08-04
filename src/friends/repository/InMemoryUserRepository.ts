@@ -1,7 +1,7 @@
 import {User, UserRepository} from "arena-split-core";
 
 export class InMemoryUserRepository implements UserRepository {
-    private readonly users: User[];
+    readonly users: User[];
 
     constructor() {
         this.users = [];
