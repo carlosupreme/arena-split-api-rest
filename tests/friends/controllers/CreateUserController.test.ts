@@ -7,10 +7,10 @@ import {
     InvalidFullNameError,
     InvalidUserNameError,
     InvalidUUIDError,
-    UserId
 } from "arena-split-core";
 import PDBuilder from "problem-details-http";
 import {InMemoryUserRepository} from "../../../src/friends/repository/InMemoryUserRepository";
+import {UserMother} from "../UserMother";
 
 describe("CreateUserController", async () => {
     const app = await Application.initialize();
@@ -18,107 +18,73 @@ describe("CreateUserController", async () => {
     const route = '/api/user';
 
     it('should create a user successfully', async () => {
-        const user = {
-            id: UserId.create().value,
-            fullName: "John Doe",
-            email: "test@test.com",
-            username: "username",
-        }
-
-        const status = httpStatus.CREATED;
+        const user = UserMother.normal();
+        const expectedStatus = httpStatus.CREATED;
         const expectedResponse = {};
 
-        const response = await request(app.server)
+        const actualResponse = await request(app.server)
             .post(route)
             .set('Accept', 'application/json')
             .send(user);
 
-        expect(response.status).toEqual(status);
-        expect(response.body).toEqual(expectedResponse);
+        expect(actualResponse.status).toEqual(expectedStatus);
+        expect(actualResponse.body).toEqual(expectedResponse);
         expect(userRepository.users.length).toBe(1);
         expect(userRepository.users[0].id.value).toEqual(user.id);
         expect(userRepository.users[0].getFullName().value).toEqual(user.fullName);
         expect(userRepository.users[0].getEmail().value).toEqual(user.email);
         expect(userRepository.users[0].getUsername().value).toEqual(user.username);
-
-        console.log(userRepository.users);
     })
 
     it('should not create a user because id validation error', async () => {
-        const user = {
-            id: "invalid-id",
-            fullName: "Full name",
-            email: "test@test.com",
-            username: "carlosupreme",
-        }
-
+        const user = UserMother.withInvalidId();
         const expectedResponse = PDBuilder.fromError(new InvalidUUIDError(user.id)).build();
 
-        const response = await request(app.server)
+        const actualResponse = await request(app.server)
             .post(route)
             .set('Accept', 'application/json')
             .send(user);
 
-        expect(response.status).toEqual(expectedResponse.status);
-        expect(response.body.detail).toContain(user.id);
-
-
+        expect(actualResponse.status).toEqual(expectedResponse.status);
+        expect(actualResponse.body).toEqual(expectedResponse.toJson());
     })
 
     it('should not create a user because full name validation error', async () => {
-        const user = {
-            id: UserId.create().value,
-            fullName: "a",
-            email: "test@test.com",
-            username: "username",
-        }
-
+        const user = UserMother.withInvalidFullName();
         const expectedResponse = PDBuilder.fromError(new InvalidFullNameError(user.fullName)).build();
 
-        const response = await request(app.server)
+        const actualResponse = await request(app.server)
             .post(route)
             .set('Accept', 'application/json')
             .send(user);
 
-        expect(response.status).toEqual(expectedResponse.status);
-        expect(response.body.detail).toContain(expectedResponse.detail);
+        expect(actualResponse.status).toEqual(expectedResponse.status);
+        expect(actualResponse.body).toEqual(expectedResponse.toJson());
     })
 
     it('should not create a user because username validation error', async () => {
-        const user = {
-            id: UserId.create().value,
-            fullName: "Full name",
-            email: "test@test.com",
-            username: "",
-        }
-
+        const user = UserMother.withInvalidUsername();
         const expectedResponse = PDBuilder.fromError(new InvalidUserNameError(user.username)).build();
 
-        const response = await request(app.server)
+        const actualResponse = await request(app.server)
             .post(route)
             .set('Accept', 'application/json')
             .send(user);
 
-        expect(response.status).toEqual(expectedResponse.status);
-        expect(response.body.title).toEqual("Invalid User Name Error");
+        expect(actualResponse.status).toEqual(expectedResponse.status);
+        expect(actualResponse.body.detail).toContain(user.username);
     })
 
     it('should not create a user because email validation error', async () => {
-        const user = {
-            id: UserId.create().value,
-            fullName: "Full name",
-            email: "test",
-            username: "username",
-        }
-
+        const user = UserMother.withInvalidEmail();
         const expectedResponse = PDBuilder.fromError(new InvalidEmailAddressError(user.email)).build();
 
-        const response = await request(app.server)
+        const actualResponse = await request(app.server)
             .post(route)
             .set('Accept', 'application/json')
             .send(user);
 
-        expect(response.status).toEqual(expectedResponse.status);
-        expect(response.body).toEqual(expectedResponse);
+        expect(actualResponse.status).toEqual(expectedResponse.status);
+        expect(actualResponse.body).toEqual(expectedResponse.toJson());
     })
 })

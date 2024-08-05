@@ -1,5 +1,5 @@
-import externalContainer from './di';
-import httpServer from './server';
+import getContainer from './di';
+import getServer from './server';
 import {Command, CommandHandler, DomainEvent, DomainEventSubscriber, EventBus} from "arena-split-core";
 import CommandHandlers from "./shared/commads/CommandHandlers";
 import {Express} from "express";
@@ -10,7 +10,8 @@ export class Application {
     readonly container: ContainerBuilder;
 
     static async initialize(): Promise<Application> {
-        const app = new Application(httpServer, externalContainer);
+        const container = getContainer();
+        const app = new Application(getServer(container), container);
         await app.arrange();
         return app;
     }

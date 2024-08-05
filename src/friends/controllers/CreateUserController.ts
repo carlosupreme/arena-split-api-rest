@@ -24,7 +24,7 @@ export class CreateUserController implements Controller {
     async run(req: Request<CreateUserRequest>, res: Response) {
         const error = await this.createUser(req);
         if (error) {
-            res.status(error.status).json(error);
+            res.status(error.status).json(error.toJson());
         } else {
             res.status(httpStatus.CREATED).json({});
         }

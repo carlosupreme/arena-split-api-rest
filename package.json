@@ -16,6 +16,7 @@
   "description": "",
   "dependencies": {
     "arena-split-core": "latest",
+    "bcrypt": "^5.1.1",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "errorhandler": "^1.5.1",
@@ -28,6 +29,7 @@
     "problem-details-http": "^1.0.2"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
     "@types/errorhandler": "^1.5.3",
