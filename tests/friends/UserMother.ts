@@ -5,13 +5,15 @@ export class UserMother {
     private static fullName = "John Doe";
     private static email = "john@doe.com";
     private static username = "john_doe";
+    private static password = "password";
 
     static normal() {
         return {
             fullName: UserMother.fullName,
             email: UserMother.email,
             username: UserMother.username,
-            id: UserMother.id
+            id: UserMother.id,
+            password: UserMother.password,
         }
     }
 
@@ -20,6 +22,7 @@ export class UserMother {
             fullName: UserMother.fullName,
             email: UserMother.email,
             username: UserMother.username,
+            password: UserMother.password,
             id: "invalid-id"
         }
     }
@@ -29,6 +32,7 @@ export class UserMother {
             fullName: "a",
             email: UserMother.email,
             username: UserMother.username,
+            password: UserMother.password,
             id: UserMother.id
         }
     }
@@ -38,6 +42,7 @@ export class UserMother {
             fullName: UserMother.fullName,
             email: "invalid-email",
             username: UserMother.username,
+            password: UserMother.password,
             id: UserMother.id
         }
     }
@@ -47,6 +52,7 @@ export class UserMother {
             fullName: UserMother.fullName,
             email: UserMother.email,
             username: "invalid-username",
+            password: UserMother.password,
             id: UserMother.id
         }
     }

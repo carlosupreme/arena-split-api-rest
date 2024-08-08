@@ -1,0 +1,84 @@
+### Success
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "john doe",
+  "email": "carlos@gmail.com",
+  "username": "carlos_123",
+  "id": "f6e08c84-e07e-4585-9805-faea78bbf080",
+  "password": "12345678"
+}
+
+### Invalid user id
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Carlos Sosa",
+  "email": "carlos@gmail.com",
+  "username": "carlos",
+  "id": "invalid",
+  "password": "12345678"
+}
+
+### Invalid email
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Carlos Sosa",
+  "email": "invalid-email",
+  "username": "carlos",
+  "id": "f6e08c84-e07e-4585-9805-faea78bbf080",
+  "password": "12345678"
+}
+
+### Invalid full name by length
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "ab",
+  "email": "carlos@gmail.com",
+  "username": "carlos.supreme",
+  "id": "f6e08c84-e07e-4585-9805-faea78bbf080",
+  "password": "12345678"
+}
+
+### Invalid full name by special character
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "carlos 123",
+  "email": "carlos@gmail.com",
+  "username": "carlos.supreme",
+  "id": "f6e08c84-e07e-4585-9805-faea78bbf080",
+  "password": "12345678"
+}
+
+
+### Invalid user name
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Carlos Sosa",
+  "email": "carlos@gmail.com",
+  "username": "..",
+  "id": "f6e08c84-e07e-4585-9805-faea78bbf080",
+  "password": "12345678"
+}
+
+### Invalid password
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Carlos Sosa",
+  "email": "carlos@gmail.com",
+  "username": "username",
+  "id": "f6e08c84-e07e-4585-9805-faea78bbf080",
+  "password": "1234567"
+}

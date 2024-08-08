@@ -10,12 +10,14 @@ import {
 } from "arena-split-core";
 import PDBuilder from "problem-details-http";
 import {InMemoryUserRepository} from "../../../src/friends/repository/InMemoryUserRepository";
-import {UserMother} from "../UserMother";
+import {InMemoryAuthRepository} from "../../../src/auth/repositories/InMemoryAuthRepository";
+import {UserMother} from "../../friends/UserMother";
 
 describe("CreateUserController", async () => {
     const app = await Application.initialize();
     const userRepository = app.container.get<InMemoryUserRepository>("UserRepository");
-    const route = '/api/user';
+    const authRepository = app.container.get<InMemoryAuthRepository>("AuthRepository");
+    const route = '/api/auth/register';
 
     it('should create a user successfully', async () => {
         const user = UserMother.normal();
@@ -29,11 +31,8 @@ describe("CreateUserController", async () => {
 
         expect(actualResponse.status).toEqual(expectedStatus);
         expect(actualResponse.body).toEqual(expectedResponse);
-        expect(userRepository.users.length).toBe(1);
-        expect(userRepository.users[0].id.value).toEqual(user.id);
-        expect(userRepository.users[0].getFullName().value).toEqual(user.fullName);
-        expect(userRepository.users[0].getEmail().value).toEqual(user.email);
-        expect(userRepository.users[0].getUsername().value).toEqual(user.username);
+        expect(user).to.contain(userRepository.users[0].toPrimitives());
+        expect(await authRepository.checkPassword(user.email, user.password)).toBe(true);
     })
 
     it('should not create a user because id validation error', async () => {

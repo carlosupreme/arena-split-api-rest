@@ -1,4 +1,5 @@
-import express, {Express, NextFunction, Request, Response, Router} from "express";
+import express, {Express, NextFunction, Request, Response} from "express";
+import Router from "express-promise-router";
 import helmet from "helmet";
 import compression from "compression";
 import cors from "cors";
