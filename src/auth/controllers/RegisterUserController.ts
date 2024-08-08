@@ -45,9 +45,6 @@ export class RegisterUserController implements Controller {
 
             await this.commandBus.dispatch(registerUserCommand)
         } catch (error) {
-
-            console.log(error)
-
             if (error instanceof InvalidUUIDError ||
                 error instanceof InvalidFullNameError ||
                 error instanceof InvalidEmailAddressError ||

@@ -1,9 +1,19 @@
 import getContainer from './di';
 import getServer from './server';
-import {Command, CommandHandler, DomainEvent, DomainEventSubscriber, EventBus} from "arena-split-core";
+import {
+    Command,
+    CommandHandler,
+    DomainEvent,
+    DomainEventSubscriber,
+    EventBus,
+    Query,
+    QueryHandler,
+    Response
+} from "arena-split-core";
 import CommandHandlers from "./shared/commads/CommandHandlers";
 import {Express} from "express";
 import {ContainerBuilder} from "node-dependency-injection";
+import QueryHandlers from "./shared/queries/QueryHandlers";
 
 export class Application {
     readonly server: Express;
@@ -24,6 +34,7 @@ export class Application {
     async arrange(): Promise<void> {
         await this.configureEventBus();
         await this.configureCommandBus();
+        await this.configureQueryBus();
     }
 
     async start(port?: string): Promise<void> {
@@ -55,6 +66,17 @@ export class Application {
         for (const {id} of commandHandlerDefinitions) {
             const commandHandler = this.container.get<CommandHandler<Command>>(id);
             commandHandlers.put(commandHandler);
+        }
+    }
+
+    private async configureQueryBus() {
+        const queryHandlers = this.container.get<QueryHandlers>('QueryHandlers');
+
+        const queryHandlerDefinitions = this.container.findTaggedServiceIds('queryHandler');
+
+        for (const {id} of queryHandlerDefinitions) {
+            const queryHandler = this.container.get<QueryHandler<Query, Response>>(id);
+            queryHandlers.put(queryHandler);
         }
     }
 }

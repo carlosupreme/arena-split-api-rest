@@ -6,7 +6,7 @@ import registerAuthDependencies from "./auth";
 export default function getContainer(): ContainerBuilder {
     const container = new ContainerBuilder(true, __dirname)
     registerSharedDependencies(container)
-    registerAuthDependencies(container)
     registerFriendsDependencies(container)
+    registerAuthDependencies(container)
     return container;
 }
