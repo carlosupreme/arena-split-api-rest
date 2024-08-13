@@ -7,6 +7,14 @@ export class InMemoryUserRepository implements UserRepository {
         this.users = [];
     }
 
+    async updateFromId(user: User): Promise<void> {
+        const index = this.users.findIndex(storedUser => storedUser.id.equals(user.id));
+
+        if (index !== -1) {
+            this.users[index] = user;
+        }
+    }
+
     async add(user: User): Promise<void> {
         this.users.push(user);
     }

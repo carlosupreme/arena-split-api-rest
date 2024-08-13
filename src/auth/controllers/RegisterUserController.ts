@@ -1,16 +1,9 @@
 import {Controller} from "../../shared/Controller";
-import {
-    CommandBus,
-    InvalidEmailAddressError,
-    InvalidFullNameError,
-    InvalidUserNameError,
-    InvalidUUIDError
-} from "arena-split-core";
+import {CommandBus} from "arena-split-core";
 import {Request, Response} from "express";
 import httpStatus from "http-status";
-import PDBuilder, {ProblemDetails} from "problem-details-http";
+import {ProblemDetails} from "problem-details-http";
 import {RegisterUserCommand} from "../commands/RegisterUserCommand";
-import {InvalidPasswordError} from "../errors/InvalidPasswordError";
 
 type RegisterUserRequest = {
     id: string;
@@ -20,8 +13,9 @@ type RegisterUserRequest = {
     password: string;
 };
 
-export class RegisterUserController implements Controller {
+export class RegisterUserController extends Controller {
     constructor(private readonly commandBus: CommandBus) {
+        super();
     }
 
     async run(req: Request<RegisterUserRequest>, res: Response) {
@@ -45,16 +39,7 @@ export class RegisterUserController implements Controller {
 
             await this.commandBus.dispatch(registerUserCommand)
         } catch (error) {
-            if (error instanceof InvalidUUIDError ||
-                error instanceof InvalidFullNameError ||
-                error instanceof InvalidEmailAddressError ||
-                error instanceof InvalidUserNameError ||
-                error instanceof InvalidPasswordError
-            ) {
-                return PDBuilder.fromError(error).build();
-            }
-
-            return PDBuilder.fromDetail("Error creating user").build();
+            return this.errorResponse(error);
         }
     }
 }

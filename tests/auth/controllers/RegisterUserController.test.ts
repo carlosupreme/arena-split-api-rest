@@ -37,7 +37,12 @@ describe("CreateUserController", async () => {
 
     it('should not create a user because id validation error', async () => {
         const user = UserMother.withInvalidId();
-        const expectedResponse = PDBuilder.fromError(new InvalidUUIDError(user.id)).build();
+        const error = new InvalidUUIDError(user.id);
+        const expectedResponse = PDBuilder.fromStatus(400)
+            .title(error.title)
+            .detail(error.detail)
+            .extensions({solutions: error.solutions})
+            .build();
 
         const actualResponse = await request(app.server)
             .post(route)
@@ -50,7 +55,12 @@ describe("CreateUserController", async () => {
 
     it('should not create a user because full name validation error', async () => {
         const user = UserMother.withInvalidFullName();
-        const expectedResponse = PDBuilder.fromError(new InvalidFullNameError(user.fullName)).build();
+        const error = new InvalidFullNameError(user.fullName);
+        const expectedResponse = PDBuilder.fromStatus(400)
+            .title(error.title)
+            .detail(error.detail)
+            .extensions({solutions: error.solutions})
+            .build();
 
         const actualResponse = await request(app.server)
             .post(route)
@@ -63,7 +73,12 @@ describe("CreateUserController", async () => {
 
     it('should not create a user because username validation error', async () => {
         const user = UserMother.withInvalidUsername();
-        const expectedResponse = PDBuilder.fromError(new InvalidUserNameError(user.username)).build();
+        const error = new InvalidUserNameError(user.username);
+        const expectedResponse = PDBuilder.fromStatus(400)
+            .title(error.title)
+            .detail(error.detail)
+            .extensions({solutions: error.solutions})
+            .build();
 
         const actualResponse = await request(app.server)
             .post(route)
@@ -76,7 +91,12 @@ describe("CreateUserController", async () => {
 
     it('should not create a user because email validation error', async () => {
         const user = UserMother.withInvalidEmail();
-        const expectedResponse = PDBuilder.fromError(new InvalidEmailAddressError(user.email)).build();
+        const error = new InvalidEmailAddressError(user.email);
+        const expectedResponse = PDBuilder.fromStatus(400)
+            .title(error.title)
+            .detail(error.detail)
+            .extensions({solutions: error.solutions})
+            .build();
 
         const actualResponse = await request(app.server)
             .post(route)

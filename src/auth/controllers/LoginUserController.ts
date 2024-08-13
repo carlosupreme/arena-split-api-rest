@@ -2,18 +2,18 @@ import {Controller} from "../../shared/Controller";
 import {QueryBus} from "arena-split-core";
 import {Request, Response} from "express";
 import httpStatus from "http-status";
-import PDBuilder, {ProblemDetails} from "problem-details-http";
+import {ProblemDetails} from "problem-details-http";
 import {LoginUserQuery} from "../queries/LoginUserQuery";
 import {LoginUserResponse} from "../queries/LoginUserResponse";
-import {InvalidCredentialsError} from "../errors/InvalidCredentialsError";
 
 type LoginUserRequest = {
     email: string;
     password: string;
 };
 
-export class LoginUserController implements Controller {
+export class LoginUserController extends Controller {
     constructor(private readonly queryBus: QueryBus) {
+        super();
     }
 
     async run(req: Request<LoginUserRequest>, res: Response) {
@@ -34,11 +34,7 @@ export class LoginUserController implements Controller {
 
             return await this.queryBus.ask<LoginUserResponse>(loginUserQuery);
         } catch (error) {
-            if (error instanceof InvalidCredentialsError) {
-                return PDBuilder.fromError(error).build();
-            }
-
-            return PDBuilder.fromDetail("Error while login user").build();
+            return this.errorResponse(error);
         }
     }
 }

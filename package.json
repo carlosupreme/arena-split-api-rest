@@ -27,7 +27,7 @@
     "http-status": "^1.7.4",
     "jsonwebtoken": "^9.0.2",
     "node-dependency-injection": "^3.1.2",
-    "problem-details-http": "^1.0.2"
+    "problem-details-http": "^2.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
