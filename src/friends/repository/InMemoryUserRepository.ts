@@ -1,10 +1,14 @@
-import {User, UserRepository} from "arena-split-core";
+import {Email, User, UserId, UserName, UserRepository} from "arena-split-core";
 
 export class InMemoryUserRepository implements UserRepository {
     readonly users: User[];
 
     constructor() {
         this.users = [];
+    }
+
+    count(): number {
+        return this.users.length;
     }
 
     async updateFromId(user: User): Promise<void> {
@@ -19,7 +23,15 @@ export class InMemoryUserRepository implements UserRepository {
         this.users.push(user);
     }
 
-    async findByEmail(email: string): Promise<User | null> {
-        return this.users.find(user => user.getEmail().value === email) || null;
+    async findByEmail(email: Email): Promise<User | null> {
+        return this.users.find(user => user.getEmail().equals(email)) || null;
+    }
+
+    async findById(id: UserId): Promise<User | null> {
+        return this.users.find(user => user.id.equals(id)) || null;
+    }
+
+    async findByUsername(username: UserName): Promise<User | null> {
+        return this.users.find(user => user.getUsername().equals(username)) || null;
     }
 }

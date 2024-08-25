@@ -1,12 +1,14 @@
-import {describe, expect, it} from "vitest";
+import {afterEach, describe, expect, it} from "vitest";
 import {Application} from "../../../src/app";
 import httpStatus from "http-status";
 import request from "supertest";
 import {
+    EmailAlreadyTakenError,
     InvalidEmailAddressError,
     InvalidFullNameError,
     InvalidUserNameError,
     InvalidUUIDError,
+    UserId,
 } from "arena-split-core";
 import {InMemoryUserRepository} from "../../../src/friends/repository/InMemoryUserRepository";
 import {InMemoryAuthRepository} from "../../../src/auth/repositories/InMemoryAuthRepository";
@@ -14,11 +16,17 @@ import {UserMother} from "../../friends/UserMother";
 import {ErrorMapper} from "../../../src/shared/infrastructure/ErrorMapper";
 import {RequiredValuesError} from "../../../src/shared/errors/RequiredValuesError";
 
-describe("CreateUserController", async () => {
-    const app = await Application.initialize();
-    const userRepository = app.container.get<InMemoryUserRepository>("UserRepository");
-    const authRepository = app.container.get<InMemoryAuthRepository>("AuthRepository");
+describe("RegisterUserController", async () => {
+    let app = await Application.initialize();
+    let userRepository = app.container.get<InMemoryUserRepository>("UserRepository");
+    let authRepository = app.container.get<InMemoryAuthRepository>("AuthRepository");
     const route = '/api/auth/register';
+
+    afterEach(async () => {
+        app = await Application.initialize();
+        authRepository = app.container.get<InMemoryAuthRepository>("AuthRepository");
+        userRepository = app.container.get<InMemoryUserRepository>("UserRepository");
+    })
 
     it('should create a user successfully', async () => {
         const user = UserMother.normal();
@@ -46,8 +54,6 @@ describe("CreateUserController", async () => {
             .post(route)
             .set('Accept', 'application/json')
             .send(user);
-
-        console.log(actualResponse.body);
 
         expect(actualResponse.status).toEqual(expectedStatus);
         expect(actualResponse.body).toEqual(expectedResponse);
@@ -107,5 +113,34 @@ describe("CreateUserController", async () => {
 
         expect(actualResponse.status).toEqual(expectedResponse.status);
         expect(actualResponse.body).toEqual(expectedResponse.toJson());
+    })
+
+    it('should not create a user because email already taken error', async () => {
+        const userRegistered = UserMother.normal();
+        await request(app.server)
+            .post(route)
+            .set('Accept', 'application/json')
+            .send(userRegistered);
+
+        const newUser = {
+            id: UserId.create().value,
+            fullName: 'Carlos',
+            email: userRegistered.email,
+            username: 'usernameCarlos',
+            password: 'password'
+        } ;
+
+        const error = new EmailAlreadyTakenError(userRegistered.email);
+        const expectedResponse = ErrorMapper.mapDomainErrorToProblemDetails(error);
+
+        const actualResponse = await request(app.server)
+            .post(route)
+            .set('Accept', 'application/json')
+            .send(newUser);
+
+        expect(actualResponse.status).toEqual(expectedResponse.status);
+        expect(actualResponse.body).toEqual(expectedResponse.toJson());
+        expect(userRepository.count()).toBe(1);
+        console.log(userRepository.users);
     })
 })

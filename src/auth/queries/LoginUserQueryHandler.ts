@@ -1,4 +1,4 @@
-import {Query, QueryHandler, User, UserRepository} from "arena-split-core";
+import {Email, Query, QueryHandler, User, UserRepository} from "arena-split-core";
 import {LoginUserQuery} from "./LoginUserQuery";
 import {LoginUserResponse} from "./LoginUserResponse";
 import {AuthRepository} from "../interfaces/AuthRepository";
@@ -23,8 +23,8 @@ export class LoginUserQueryHandler implements QueryHandler<LoginUserQuery, Login
         return new LoginUserResponse(token, user.toPrimitives());
     }
 
-    private async getUserByEmail(email:string): Promise<User> {
-        const user = await this.userRepository.findByEmail(email);
+    private async getUserByEmail(email: string): Promise<User> {
+        const user = await this.userRepository.findByEmail(new Email(email));
 
         if (!user) {
             throw new InvalidCredentialsError();

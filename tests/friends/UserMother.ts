@@ -7,6 +7,8 @@ export class UserMother {
     private static username = "john_doe";
     private static password = "password";
 
+
+
     static normal() {
         return {
             fullName: UserMother.fullName,

@@ -8,7 +8,6 @@ import {ErrorMapper} from "../../../src/shared/infrastructure/ErrorMapper";
 
 describe("Login User Controller", async () => {
     const app = await Application.initialize();
-    const loginRoute = '/api/auth/login';
     const registerRoute = '/api/auth/register';
     const user = UserMother.normal();
 
@@ -18,6 +17,8 @@ describe("Login User Controller", async () => {
             .set('Accept', 'application/json')
             .send(user);
     })
+
+    const loginRoute = '/api/auth/login';
 
     it('should log in an user successfully', async () => {
         const expectedStatus = httpStatus.OK;
@@ -53,11 +54,10 @@ describe("Login User Controller", async () => {
 
         expect(actualResponse.status).toEqual(expectedStatus);
         expect(actualResponse.body).toEqual(expectedResponse);
-
     })
 
     it('should validate an invalid email', async () => {
-        const invalidEmail = 'invalid-email';
+        const invalidEmail = 'invalidEmail@email.com';
         const expectedStatus = httpStatus.UNAUTHORIZED;
         const error = new InvalidCredentialsError();
         const expectedResponse = ErrorMapper.mapDomainErrorToProblemDetails(error).toJson();
