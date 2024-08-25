@@ -1,4 +1,4 @@
-import {Controller} from "../../shared/Controller";
+import {Controller} from "../../shared/controllers/Controller";
 import {CommandBus} from "arena-split-core";
 import {Request, Response} from "express";
 import httpStatus from "http-status";

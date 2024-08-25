@@ -3,15 +3,18 @@ import {Application} from "../../../src/app";
 import httpStatus from "http-status";
 import request from "supertest";
 import {UserMother} from "../../friends/UserMother";
+import {InvalidCredentialsError} from "../../../src/auth/errors/InvalidCredentialsError";
+import {ErrorMapper} from "../../../src/shared/infrastructure/ErrorMapper";
 
 describe("Login User Controller", async () => {
     const app = await Application.initialize();
-    const route = '/api/auth/login';
+    const loginRoute = '/api/auth/login';
+    const registerRoute = '/api/auth/register';
     const user = UserMother.normal();
 
     beforeAll(async () => {
         await request(app.server)
-            .post('/api/auth/register')
+            .post(registerRoute)
             .set('Accept', 'application/json')
             .send(user);
     })
@@ -19,17 +22,52 @@ describe("Login User Controller", async () => {
     it('should log in an user successfully', async () => {
         const expectedStatus = httpStatus.OK;
         const expectedResponse = {
+            user: {
+                id: user.id,
+                email: user.email,
+                fullName: user.fullName,
+                username: user.username
+            },
             token: expect.any(String)
         };
 
         const actualResponse = await request(app.server)
-            .post(route)
+            .post(loginRoute)
             .set('Accept', 'application/json')
-            .send(user);
+            .send({email: user.email, password: user.password});
 
         expect(actualResponse.status).toEqual(expectedStatus);
         expect(actualResponse.body).toEqual(expectedResponse);
-        expect(actualResponse.body.token).toEqual(expect.any(String));
+    })
 
+    it('should validate an invalid password', async () => {
+        const invalidPassword = 'invalid-password';
+        const expectedStatus = httpStatus.UNAUTHORIZED;
+        const error = new InvalidCredentialsError();
+        const expectedResponse = ErrorMapper.mapDomainErrorToProblemDetails(error).toJson();
+
+        const actualResponse = await request(app.server)
+            .post(loginRoute)
+            .set('Accept', 'application/json')
+            .send({email: user.email, password: invalidPassword});
+
+        expect(actualResponse.status).toEqual(expectedStatus);
+        expect(actualResponse.body).toEqual(expectedResponse);
+
+    })
+
+    it('should validate an invalid email', async () => {
+        const invalidEmail = 'invalid-email';
+        const expectedStatus = httpStatus.UNAUTHORIZED;
+        const error = new InvalidCredentialsError();
+        const expectedResponse = ErrorMapper.mapDomainErrorToProblemDetails(error).toJson();
+
+        const actualResponse = await request(app.server)
+            .post(loginRoute)
+            .set('Accept', 'application/json')
+            .send({email: invalidEmail, password: user.password});
+
+        expect(actualResponse.status).toEqual(expectedStatus);
+        expect(actualResponse.body).toEqual(expectedResponse);
     })
 })

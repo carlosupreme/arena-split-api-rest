@@ -1,4 +1,4 @@
-import {Controller} from "../../shared/Controller";
+import {Controller} from "../../shared/controllers/Controller";
 import {QueryBus} from "arena-split-core";
 import {Request, Response} from "express";
 import httpStatus from "http-status";
@@ -21,7 +21,7 @@ export class LoginUserController extends Controller {
         if (response instanceof ProblemDetails) {
             res.status(response.status).json(response.toJson());
         } else {
-            res.status(httpStatus.OK).json({token: response.token});
+            res.status(httpStatus.OK).json(response);
         }
     }
 

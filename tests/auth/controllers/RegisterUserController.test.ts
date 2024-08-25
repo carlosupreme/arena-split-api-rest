@@ -8,10 +8,11 @@ import {
     InvalidUserNameError,
     InvalidUUIDError,
 } from "arena-split-core";
-import PDBuilder from "problem-details-http";
 import {InMemoryUserRepository} from "../../../src/friends/repository/InMemoryUserRepository";
 import {InMemoryAuthRepository} from "../../../src/auth/repositories/InMemoryAuthRepository";
 import {UserMother} from "../../friends/UserMother";
+import {ErrorMapper} from "../../../src/shared/infrastructure/ErrorMapper";
+import {RequiredValuesError} from "../../../src/shared/errors/RequiredValuesError";
 
 describe("CreateUserController", async () => {
     const app = await Application.initialize();
@@ -35,14 +36,27 @@ describe("CreateUserController", async () => {
         expect(await authRepository.checkPassword(user.email, user.password)).toBe(true);
     })
 
+    it('should not create an user because of missing values', async () => {
+        const user = UserMother.missingFullName();
+        const expectedStatus = httpStatus.BAD_REQUEST;
+        const error = new RequiredValuesError(['fullName']);
+        const expectedResponse = ErrorMapper.mapErrorToProblemDetails(error).toJson();
+
+        const actualResponse = await request(app.server)
+            .post(route)
+            .set('Accept', 'application/json')
+            .send(user);
+
+        console.log(actualResponse.body);
+
+        expect(actualResponse.status).toEqual(expectedStatus);
+        expect(actualResponse.body).toEqual(expectedResponse);
+    })
+
     it('should not create a user because id validation error', async () => {
         const user = UserMother.withInvalidId();
         const error = new InvalidUUIDError(user.id);
-        const expectedResponse = PDBuilder.fromStatus(400)
-            .title(error.title)
-            .detail(error.detail)
-            .extensions({solutions: error.solutions})
-            .build();
+        const expectedResponse = ErrorMapper.mapDomainErrorToProblemDetails(error);
 
         const actualResponse = await request(app.server)
             .post(route)
@@ -56,11 +70,7 @@ describe("CreateUserController", async () => {
     it('should not create a user because full name validation error', async () => {
         const user = UserMother.withInvalidFullName();
         const error = new InvalidFullNameError(user.fullName);
-        const expectedResponse = PDBuilder.fromStatus(400)
-            .title(error.title)
-            .detail(error.detail)
-            .extensions({solutions: error.solutions})
-            .build();
+        const expectedResponse = ErrorMapper.mapDomainErrorToProblemDetails(error);
 
         const actualResponse = await request(app.server)
             .post(route)
@@ -74,11 +84,7 @@ describe("CreateUserController", async () => {
     it('should not create a user because username validation error', async () => {
         const user = UserMother.withInvalidUsername();
         const error = new InvalidUserNameError(user.username);
-        const expectedResponse = PDBuilder.fromStatus(400)
-            .title(error.title)
-            .detail(error.detail)
-            .extensions({solutions: error.solutions})
-            .build();
+        const expectedResponse = ErrorMapper.mapDomainErrorToProblemDetails(error);
 
         const actualResponse = await request(app.server)
             .post(route)
@@ -92,11 +98,7 @@ describe("CreateUserController", async () => {
     it('should not create a user because email validation error', async () => {
         const user = UserMother.withInvalidEmail();
         const error = new InvalidEmailAddressError(user.email);
-        const expectedResponse = PDBuilder.fromStatus(400)
-            .title(error.title)
-            .detail(error.detail)
-            .extensions({solutions: error.solutions})
-            .build();
+        const expectedResponse = ErrorMapper.mapDomainErrorToProblemDetails(error);
 
         const actualResponse = await request(app.server)
             .post(route)

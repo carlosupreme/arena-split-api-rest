@@ -2,11 +2,11 @@ import {Command} from "arena-split-core";
 
 export class RegisterUserCommand extends Command {
     constructor(
-        readonly id: string,
-        readonly fullName: string,
-        readonly email: string,
-        readonly username: string,
-        readonly password: string
+        public readonly id: string,
+        public readonly fullName: string,
+        public readonly email: string,
+        public readonly username: string,
+        public readonly password: string
     ) {
         super();
     }

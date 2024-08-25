@@ -2,6 +2,7 @@ import {RegisterUserCommand} from "./RegisterUserCommand";
 import {Command, CommandBus, CommandHandler, CreateUserCommand} from "arena-split-core";
 import {AuthRepository} from "../interfaces/AuthRepository";
 import {InvalidPasswordError} from "../errors/InvalidPasswordError";
+import {RequiredValuesValidator} from "../../shared/infrastructure/RequiredValuesValidator";
 
 export class RegisterUserCommandHandler implements CommandHandler<RegisterUserCommand> {
 
@@ -12,6 +13,7 @@ export class RegisterUserCommandHandler implements CommandHandler<RegisterUserCo
     }
 
     async handle(command: RegisterUserCommand): Promise<void> {
+        this.ensureDefinedValues(command);
         this.validatePassword(command.password);
 
         const createUserCommand = new CreateUserCommand({
@@ -25,6 +27,16 @@ export class RegisterUserCommandHandler implements CommandHandler<RegisterUserCo
             this.commandBus.dispatch(createUserCommand),
             this.authRepository.assignPassword(command.email, command.password)
         ])
+    }
+
+    private ensureDefinedValues(command: RegisterUserCommand) {
+        RequiredValuesValidator.validate(command, [
+            'id',
+            'fullName',
+            'email',
+            'username',
+            'password'
+        ]);
     }
 
     private validatePassword(password: string) {

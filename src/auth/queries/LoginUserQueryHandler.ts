@@ -20,7 +20,7 @@ export class LoginUserQueryHandler implements QueryHandler<LoginUserQuery, Login
 
         const token = await this.tokenGenerator.generate(user.toPrimitives());
 
-        return new LoginUserResponse(token);
+        return new LoginUserResponse(token, user.toPrimitives());
     }
 
     private async getUserByEmail(email:string): Promise<User> {

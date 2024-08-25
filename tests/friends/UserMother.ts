@@ -56,4 +56,14 @@ export class UserMother {
             id: UserMother.id
         }
     }
+
+    static missingFullName() {
+        return {
+            email: UserMother.email,
+            username: UserMother.username,
+            password: UserMother.password,
+            id: UserMother.id
+        }
+    }
+
 }

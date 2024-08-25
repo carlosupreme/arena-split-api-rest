@@ -1,4 +1,4 @@
-import {Controller} from "../Controller";
+import {Controller} from "./Controller";
 import {Request, Response} from "express";
 
 export class HealthController extends Controller {
