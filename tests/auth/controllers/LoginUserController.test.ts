@@ -1,26 +1,44 @@
-import {beforeAll, describe, expect, it} from "vitest";
+import {afterEach, beforeEach, describe, expect, it} from "vitest";
 import {Application} from "../../../src/app";
 import httpStatus from "http-status";
 import request from "supertest";
 import {UserMother} from "../../friends/UserMother";
 import {InvalidCredentialsError} from "../../../src/auth/errors/InvalidCredentialsError";
 import {ErrorMapper} from "../../../src/shared/infrastructure/ErrorMapper";
+import {InMemoryUserRepository} from "../../../src/friends/repository/InMemoryUserRepository";
+import {InMemoryAuthRepository} from "../../../src/auth/repositories/InMemoryAuthRepository";
 
 describe("Login User Controller", async () => {
-    const app = await Application.initialize();
+    let app: Application;
+    let userRepository: InMemoryUserRepository;
+    let authRepository: InMemoryAuthRepository;
     const registerRoute = '/api/auth/register';
-    const user = UserMother.normal();
+    const loginRoute = '/api/auth/login';
 
-    beforeAll(async () => {
+    beforeEach(async () => {
+        app = await Application.initialize();
+        userRepository = app.container.get<InMemoryUserRepository>("UserRepository");
+        authRepository = app.container.get<InMemoryAuthRepository>("AuthRepository");
+
+        const user = UserMother.normal();
+
         await request(app.server)
             .post(registerRoute)
             .set('Accept', 'application/json')
             .send(user);
-    })
 
-    const loginRoute = '/api/auth/login';
+        expect(userRepository.count()).toBe(1);
+        expect(await authRepository.checkPassword(user.email, user.password)).toBe(true);
+    });
+
+    afterEach(async () => {
+        app = await Application.initialize();
+        userRepository = app.container.get<InMemoryUserRepository>("UserRepository");
+        authRepository = app.container.get<InMemoryAuthRepository>("AuthRepository");
+    });
 
     it('should log in an user successfully', async () => {
+        const user = UserMother.normal();
         const expectedStatus = httpStatus.OK;
         const expectedResponse = {
             user: {
@@ -42,6 +60,7 @@ describe("Login User Controller", async () => {
     })
 
     it('should validate an invalid password', async () => {
+        const user = UserMother.normal();
         const invalidPassword = 'invalid-password';
         const expectedStatus = httpStatus.UNAUTHORIZED;
         const error = new InvalidCredentialsError();
@@ -57,6 +76,7 @@ describe("Login User Controller", async () => {
     })
 
     it('should validate an invalid email', async () => {
+        const user = UserMother.normal();
         const invalidEmail = 'invalidEmail@email.com';
         const expectedStatus = httpStatus.UNAUTHORIZED;
         const error = new InvalidCredentialsError();

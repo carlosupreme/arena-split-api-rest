@@ -3,6 +3,7 @@ import {Application} from "../../../src/app";
 import httpStatus from "http-status";
 import request from "supertest";
 import {
+    Email,
     EmailAlreadyTakenError,
     InvalidEmailAddressError,
     InvalidFullNameError,
@@ -31,16 +32,17 @@ describe("RegisterUserController", async () => {
     it('should create a user successfully', async () => {
         const user = UserMother.normal();
         const expectedStatus = httpStatus.CREATED;
-        const expectedResponse = {};
-
         const actualResponse = await request(app.server)
             .post(route)
             .set('Accept', 'application/json')
             .send(user);
 
         expect(actualResponse.status).toEqual(expectedStatus);
-        expect(actualResponse.body).toEqual(expectedResponse);
-        expect(user).to.contain(userRepository.users[0].toPrimitives());
+        expect(actualResponse.body).toEqual({});
+
+        const createdUser = userRepository.users[0].toPrimitives();
+        expect(user).toMatchObject(createdUser);
+
         expect(await authRepository.checkPassword(user.email, user.password)).toBe(true);
     })
 
@@ -115,20 +117,27 @@ describe("RegisterUserController", async () => {
         expect(actualResponse.body).toEqual(expectedResponse.toJson());
     })
 
-    it('should not create a user because email already taken error', async () => {
-        const userRegistered = UserMother.normal();
-        await request(app.server)
-            .post(route)
-            .set('Accept', 'application/json')
-            .send(userRegistered);
+    it('should not create a new user because email already taken error', async () => {
+        const userRegistered = {
+            id: UserId.create().value,
+            fullName: 'John Doe',
+            email: 'johndoe@example.com',
+            username: 'johnny',
+            password: 'securePassword123',
+        };
 
         const newUser = {
             id: UserId.create().value,
             fullName: 'Carlos',
             email: userRegistered.email,
-            username: 'usernameCarlos',
-            password: 'password'
-        } ;
+            username: 'carlos123',
+            password: 'passwordCarlos123'
+        };
+
+        await request(app.server)
+            .post(route)
+            .set('Accept', 'application/json')
+            .send(userRegistered);
 
         const error = new EmailAlreadyTakenError(userRegistered.email);
         const expectedResponse = ErrorMapper.mapDomainErrorToProblemDetails(error);
@@ -140,7 +149,12 @@ describe("RegisterUserController", async () => {
 
         expect(actualResponse.status).toEqual(expectedResponse.status);
         expect(actualResponse.body).toEqual(expectedResponse.toJson());
-        expect(userRepository.count()).toBe(1);
-        console.log(userRepository.users);
+
+        const usersInRepository = userRepository.count();
+        expect(usersInRepository).toBe(1);
+
+        const userInRepository = await userRepository.findByEmail(new Email(userRegistered.email));
+        expect(userInRepository).toBeDefined();
+        expect(userRegistered).toMatchObject(userInRepository!.toPrimitives());
     })
 })
